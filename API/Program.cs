@@ -12,10 +12,20 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// Add CORS policy to allow requests from specific domains
+// This adds a header to the http response that tells the 
+// browser to allow requests from other domains
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline. Middleware functions
 // are executed in the order they are added here.
+app.UseCors(options => options
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .WithOrigins("http://localhost:3000", "https://localhost:3000")
+); // Enable CORS for the application
 
 app.MapControllers();
 
