@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,5 +8,12 @@ namespace API.Controllers
     [ApiController]
     public class BaseApiController : ControllerBase
     {
+        // setting up a property for MediatR to be used in derived controllers
+        private IMediator? _mediator;
+        // A protected property is one that can be accessed by this class and any class that derives from it.
+        // The ??= operator means "if _mediator is null, assign it the value on the right".
+        // So if the _mediator field is null, it will get the IMediator service from the HttpContext's RequestServices.
+        protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>() 
+            ?? throw new InvalidOperationException("IMediator service not found");
     }
 }

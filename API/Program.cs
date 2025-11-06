@@ -1,3 +1,5 @@
+using Application.Activities.Queries;
+using Application.Core;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -16,6 +18,12 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 // This adds a header to the http response that tells the 
 // browser to allow requests from other domains
 builder.Services.AddCors();
+
+// Add MediatR for handling CQRS pattern
+builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetActivityList>());
+
+// Add AutoMapper for object-object mapping
+builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 
 var app = builder.Build();
 
