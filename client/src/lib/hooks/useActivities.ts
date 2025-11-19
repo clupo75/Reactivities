@@ -1,0 +1,62 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import agent from "../api/agent";
+
+// custom hooks by convention start with "use"
+// custom hook for managing activities
+export const useActivities = () => {
+  // get the query client instance for invalidating queries
+  const queryClient = useQueryClient();
+
+  // Call the server side api using react query instead of a useEffect hook
+  // We get the 'data' back and name it 'activities' in the destructuring assignment
+  // This will now handle the loading state and caching of activities, instead of storing them in local state
+  const { data: activities, isPending } = useQuery({
+    queryKey: ["activities"],
+    queryFn: async () => {
+      const response = await agent.get<Activity[]>("/activities");
+      return response.data;
+    },
+  });
+
+  // useMutation when we need to create, update or delete data on the server
+
+  // update mutation
+  const updateActivity = useMutation({
+    mutationFn: async (activity: Activity) => {
+      await agent.put("/activities", activity);
+    },
+    onSuccess: async () => {
+      // Invalidate the activities query and refetch by passing the query key
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+
+  // create mutation
+  const createActivity = useMutation({
+    mutationFn: async (activity: Activity) => {
+      await agent.post("/activities", activity);
+    },
+    onSuccess: async () => {
+      // Invalidate the activities query and refetch by passing the query key
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+
+  const deleteActivity = useMutation({
+    mutationFn: async (id: string) => {
+      await agent.delete(`/activities/${id}`);
+    },
+    onSuccess: async () => {
+      // Invalidate the activities query and refetch by passing the query key
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+
+  return {
+    activities,
+    isPending,
+    updateActivity,
+    createActivity,
+    deleteActivity,
+  };
+};

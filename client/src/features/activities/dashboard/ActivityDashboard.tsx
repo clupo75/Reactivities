@@ -16,8 +16,6 @@ type Props = {
     // function to open the form for creating or editing an activity, needs an id parameter
     openForm: (id: string) => void;
     closeForm: () => void;
-    submitForm: (activity: Activity) => void;
-    deleteActivity: (id: string) => void;
 }
 
 // destructuring activities from property type Props, then using it in the component
@@ -25,9 +23,7 @@ export default function ActivityDashboard({ activities, selectActivity, cancelSe
     selectedActivity,
     editMode,
     openForm,
-    closeForm,
-    submitForm,
-    deleteActivity
+    closeForm
 }: Props) {
     return (
         // This will be the outer grid container
@@ -35,15 +31,13 @@ export default function ActivityDashboard({ activities, selectActivity, cancelSe
             <Grid2 size={7}>
                 <ActivityList
                     activities={activities}
-                    selectActivity={selectActivity}
-                    deleteActivity={deleteActivity}
-                />
+                    selectActivity={selectActivity}                />
             </Grid2>
             <Grid2 size={5}>
                 {/* display the activity detail if selectedActivity and editMode is not enabled */}
                 {
                     selectedActivity && !editMode && <ActivityDetails
-                        activity={selectedActivity}
+                        selectedActivity={selectedActivity}
                         cancelSelectActivity={cancelSelectActivity}
                         openForm={openForm}
                     />
@@ -54,7 +48,6 @@ export default function ActivityDashboard({ activities, selectActivity, cancelSe
                     <ActivityForm
                         closeForm={closeForm}
                         activity={selectedActivity}
-                        submitForm={submitForm}
                     />
                 }
             </Grid2>
