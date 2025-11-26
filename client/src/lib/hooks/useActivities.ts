@@ -3,7 +3,7 @@ import agent from "../api/agent";
 
 // custom hooks by convention start with "use"
 // custom hook for managing activities
-export const useActivities = () => {
+export const useActivities = (id?: string) => {
   // get the query client instance for invalidating queries
   const queryClient = useQueryClient();
 
@@ -17,6 +17,17 @@ export const useActivities = () => {
       return response.data;
     },
   });
+
+  // get the individual activity by id. The id will be supplied by the route id param
+  // then passed into the hook as an argument
+  const {data: activity, isLoading: isLoadingActivity} = useQuery({
+    queryKey: ["activities", id],
+    queryFn: async () => {
+      const response = await agent.get<Activity>(`/activities/${id}`);
+      return response.data;
+    },
+    enabled: !!id, // only run this query if id is provided
+  })
 
   // useMutation when we need to create, update or delete data on the server
 
@@ -34,7 +45,8 @@ export const useActivities = () => {
   // create mutation
   const createActivity = useMutation({
     mutationFn: async (activity: Activity) => {
-      await agent.post("/activities", activity);
+      const response = await agent.post("/activities", activity);
+      return response.data;
     },
     onSuccess: async () => {
       // Invalidate the activities query and refetch by passing the query key
@@ -58,5 +70,7 @@ export const useActivities = () => {
     updateActivity,
     createActivity,
     deleteActivity,
+    activity,
+    isLoadingActivity
   };
 };
