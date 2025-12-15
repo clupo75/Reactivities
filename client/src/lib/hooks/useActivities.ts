@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
+import { useLocation } from "react-router";
 
 // custom hooks by convention start with "use"
 // custom hook for managing activities
 export const useActivities = (id?: string) => {
   // get the query client instance for invalidating queries
   const queryClient = useQueryClient();
+  const location = useLocation();
 
   // Call the server side api using react query instead of a useEffect hook
   // We get the 'data' back and name it 'activities' in the destructuring assignment
@@ -16,6 +18,7 @@ export const useActivities = (id?: string) => {
       const response = await agent.get<Activity[]>("/activities");
       return response.data;
     },
+    enabled: !id && location.pathname === '/activities', // only run this query if id is not provided and we are on the activities page
   });
 
   // get the individual activity by id. The id will be supplied by the route id param
