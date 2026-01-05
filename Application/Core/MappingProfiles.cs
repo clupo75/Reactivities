@@ -1,4 +1,5 @@
 using System;
+using Application.Activities.DTOs;
 using AutoMapper;
 using Domain;
 
@@ -12,5 +13,8 @@ public class MappingProfiles : Profile
         // setup for where we are to map from and map to
         // Source -> Destination: Activity -> Activity
         CreateMap<Activity, Activity>();
+        // Source -> Destination: ActivityDto -> Activity
+        CreateMap<CreateActivityDto, Activity>();
+        CreateMap<EditActivityDto, Activity>();
     }
 }

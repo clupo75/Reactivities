@@ -1,5 +1,6 @@
 using System;
 using Application.Activities.Commands;
+using Application.Activities.DTOs;
 using Application.Activities.Queries;
 using Domain;
 using MediatR;
@@ -27,25 +28,25 @@ public class ActivitiesController : BaseApiController
     {
         // find activity by id in the database using MediatR
         // The Mediator property is inherited from BaseApiController
-        return await Mediator.Send(new GetActivityDetails.Query { Id = id });
+        // use the HandleResult method from BaseApiController to handle the Results<T> response
+        return HandleResult(await Mediator.Send(new GetActivityDetails.Query { Id = id }));
     }
 
     // POST: api/activities
     [HttpPost]
-    public async Task<ActionResult<string>> CreateActivity(Activity activity)
+    public async Task<ActionResult<string>> CreateActivity(CreateActivityDto activityDto)
     {
         // use MediatR to send the CreateActivity command to create a new activity
-        // by passing the activity object received from the request body
-        return await Mediator.Send(new CreateActivity.Command { Activity = activity });
+        // by passing the activityDto received from the request body
+        return HandleResult(await Mediator.Send(new CreateActivity.Command { ActivityDto = activityDto }));
     }
 
     // PUT: api/activities
     [HttpPut]
-    public async Task<ActionResult> EditActivity(Activity activity)
+    public async Task<ActionResult> EditActivity(EditActivityDto activity)
     {
         // use MediatR to send the EditActivity command to update the activity
-        await Mediator.Send(new EditActivity.Command { Activity = activity });
-        return NoContent();
+        return HandleResult(await Mediator.Send(new EditActivity.Command { ActivityDto = activity }));
     }
 
     // DELETE: api/activities/{id}
@@ -53,9 +54,7 @@ public class ActivitiesController : BaseApiController
     public async Task<ActionResult> DeleteActivity(string id)
     {
         // use MediatR to send the DeleteActivity command to delete the activity by id
-        await Mediator.Send(new DeleteActivity.Command { Id = id });
-
-        return Ok();
+        return HandleResult(await Mediator.Send(new DeleteActivity.Command { Id = id }));
     }
 
 }

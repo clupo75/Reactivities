@@ -1,5 +1,8 @@
+using API.Middleware;
 using Application.Activities.Queries;
+using Application.Activities.Validators;
 using Application.Core;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -20,15 +23,29 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 builder.Services.AddCors();
 
 // Add MediatR for handling CQRS pattern
-builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetActivityList>());
+// Adding validation behavior to MediatR pipeline
+builder.Services.AddMediatR(x =>
+{
+     x.RegisterServicesFromAssemblyContaining<GetActivityList>();
+     x.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
 
 // Add AutoMapper for object-object mapping
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+
+// Add FluentValidation for validation of DTOs
+builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
+
+// Register the ExceptionMiddleware for global exception handling
+// AddTransient means a new instance is created each time it is needed
+builder.Services.AddTransient<ExceptionMiddleware>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline. Middleware functions
 // are executed in the order they are added here.
+app.UseMiddleware<ExceptionMiddleware>(); // Use custom exception handling middleware
+
 app.UseCors(options => options
     .AllowAnyHeader()
     .AllowAnyMethod()
